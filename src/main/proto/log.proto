@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package proglog;
+
+option java_package = "org.proglog.protos";
+option java_multiple_files = true;
+
+message Record {
+    bytes value = 1;
+    uint64 offset = 2;
+}
