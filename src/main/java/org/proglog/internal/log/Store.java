@@ -13,7 +13,7 @@ public class Store {
     private long size;
 
     // number of bytes used to store the record's length
-    public static int LEN_WIDTH_BYTES = 8;
+    public static int LEN_WIDTH_BYTES = 4;
 
     private Store(RandomAccessFile dataFile, ReadWriteLock lock, BufferedOutputStream bufferedWriter, long size) {
         this.dataFile = dataFile;
@@ -42,9 +42,8 @@ public class Store {
         long positionOfNewData = size;
         try {
             lock.writeLock().lock();
-
             // write the length of the data
-            dataLengthWriter.writeLong(data.length);
+            dataLengthWriter.writeInt(data.length);
             size += LEN_WIDTH_BYTES;
             bufferedWriter.write(data);
             size += data.length;
@@ -71,17 +70,17 @@ public class Store {
             dataFile.seek(position);
             byte[] lengthBytes = new byte[LEN_WIDTH_BYTES];
             dataFile.read(lengthBytes, 0, LEN_WIDTH_BYTES);
-            long dataSize = new BigInteger(lengthBytes).longValue();
-            byte[] dataBytes = new byte[(int) dataSize];
+            int dataSize = new BigInteger(lengthBytes).intValue();
+            byte[] dataBytes = new byte[dataSize];
             dataFile.seek(position + LEN_WIDTH_BYTES);
-            dataFile.read(dataBytes, 0, (int) dataSize);
+            dataFile.read(dataBytes, 0, dataSize);
             return dataBytes;
         } finally {
             lock.readLock().unlock();
         }
     }
 
-    public int readAt(byte[] outputBytes, long offset) throws IOException {
+    public int readAt(byte[] outputBytes, int offset) throws IOException {
         try {
             lock.readLock().lock();
             bufferedWriter.flush();
