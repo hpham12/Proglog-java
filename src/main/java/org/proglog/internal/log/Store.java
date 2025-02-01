@@ -5,13 +5,17 @@ import java.math.BigInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * Class to represent the Store component of the log
+ *
+ * @author hpham
+ * */
 public class Store {
     private final RandomAccessFile dataFile;
     private final ReadWriteLock lock;
     private final BufferedOutputStream bufferedWriter;
     private final DataOutputStream dataLengthWriter;
     private long size;
-
     // number of bytes used to store the record's length
     public static int LEN_WIDTH_BYTES = 4;
 
@@ -59,9 +63,7 @@ public class Store {
     }
 
     /**
-     * Read data, given a position
-     *
-     * @Return data at the position
+     * Read data, given a <code>position</code>
      * */
     public byte[] read(long position) throws IOException {
         try {
@@ -80,6 +82,10 @@ public class Store {
         }
     }
 
+    /**
+     * Read N bytes starting at a specific <code>offset</code> into <code>outputBytes</code>,
+     * where N is the size of <code>outputBytes</code>
+     * */
     public int readAt(byte[] outputBytes, int offset) throws IOException {
         try {
             lock.readLock().lock();
@@ -91,6 +97,9 @@ public class Store {
         }
     }
 
+    /**
+     * Close the resources
+     * */
     public void close() throws IOException {
         try {
             lock.writeLock().lock();
