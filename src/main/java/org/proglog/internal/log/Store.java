@@ -43,9 +43,9 @@ public class Store {
      * @Return position of the new data, -1 if the append operation failed
      * */
     public long append(byte[] data) {
+        lock.writeLock().lock();
         long positionOfNewData = size;
         try {
-            lock.writeLock().lock();
             // write the length of the data
             dataLengthWriter.writeInt(data.length);
             size += LEN_WIDTH_BYTES;
@@ -66,8 +66,8 @@ public class Store {
      * Read data, given a <code>position</code>
      * */
     public byte[] read(long position) throws IOException {
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             bufferedWriter.flush();
             dataFile.seek(position);
             byte[] lengthBytes = new byte[LEN_WIDTH_BYTES];
@@ -87,8 +87,8 @@ public class Store {
      * where N is the size of <code>outputBytes</code>
      * */
     public int readAt(byte[] outputBytes, int offset) throws IOException {
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             bufferedWriter.flush();
             dataFile.seek(offset);
             return dataFile.read(outputBytes, 0, outputBytes.length);
@@ -101,8 +101,8 @@ public class Store {
      * Close the resources
      * */
     public void close() throws IOException {
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
             bufferedWriter.flush();
             dataFile.close();
         } finally {
